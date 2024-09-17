@@ -1,23 +1,26 @@
-import os
-import glob
-from setuptools import setup
-from torch.utils.cpp_extension import BuildExtension, CUDAExtension
+from setuptools import setup, find_packages
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-include_dirs = [os.path.join(ROOT_DIR, "include")]
+# with open("README.md", "r") as fh:
+#     long_description = fh.read()
 
-sources = glob.glob('*.cpp') + glob.glob('*.cu')
+with open("setup-requirements.txt", "r") as req_file:
+    install_requires = req_file.read().splitlines()
 
 setup(
-    name="add2",
-    include_dirs=["include"],
-    ext_modules=[
-        CUDAExtension(
-            "add2",
-            ["kernel/add2_ops.cpp", "kernel/add2_kernel.cu"],
-        )
+    name="tri_cbwc",
+    version="0.1.0",
+    author="Whsjrczr",
+    author_email="guocindy@live.com",
+    # description="Packaged version of Griffin for Jax + Flax.",
+    # long_description=long_description,
+    # long_description_content_type="text/markdown",
+    url="https://github.com/Whsjrczr/CBWC-cuda",
+    packages=find_packages(),
+    install_requires=install_requires,
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
     ],
-    cmdclass={
-        "build_ext": BuildExtension
-    }
+    python_requires=">=3.8",
 )
