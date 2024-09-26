@@ -1,10 +1,10 @@
 import torch
+import torch.nn as nn
 from tri_cbwc.kernel.cbwc_kernel import (
     _cbwc_fwd_fused,
     _cbwc_bwd_dx_fused,
 )
 
-torch.nn.Linear
 
 
 class RMSNormFunctionCustomKernel(torch.autograd.Function):
@@ -49,7 +49,7 @@ class RMSNormFunctionCustomKernel(torch.autograd.Function):
 
 
 class RMSNormLayer(nn.Module):
-    def __init__(self, weight_size, eps=1e-5):
+    def __init__(self, weight_size,affine=False, eps=1e-5):
         super(RMSNormLayer, self).__init__()
         self.weight = nn.Parameter(torch.Tensor(weight_size))
         self.bias = nn.Parameter(torch.Tensor(weight_size))

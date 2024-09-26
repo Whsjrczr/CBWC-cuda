@@ -98,27 +98,26 @@ class CCLinear_repara(nn.Module):
 
     def forward(self, input: Tensor) -> Tensor:
         if self.training:
-            column_means = torch.mean(self.v_weight, dim=0)
-            self.weight = torch.sub(self.v_weight, column_means)
-            if self.bias != None:
-                bias_mean = torch.mean(self.v_bias, dim=0)
-                self.bias = torch.sub(self.v_bias, bias_mean)
+            self._center_weight_bias
         return F.linear(input, self.weight, self.bias)
 
     def eval(self):
+        self._center_weight_bias
+        return self.train(False)
+    
+    def _center_weight_bias(self):
         column_means = torch.mean(self.v_weight, dim=0)
         self.weight = torch.sub(self.v_weight, column_means)
         if self.bias != None:
             bias_mean = torch.mean(self.v_bias, dim=0)
             self.bias = torch.sub(self.v_bias, bias_mean)
-        return self.train(False)
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
             self.in_features, self.out_features, self.bias is not None
         )
 
-'''
+
 class CClinear_flag(nn.Module):
     __constants__ = ['in_features', 'out_features']
     in_features: int
@@ -174,4 +173,3 @@ class CClinear_flag(nn.Module):
         return 'in_features={}, out_features={}, bias={}'.format(
             self.in_features, self.out_features, self.bias is not None
         )
-'''

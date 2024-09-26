@@ -24,11 +24,13 @@ def _cbwc_fwd_fused(
     Params:
         - X (tensor): Input tensor
         - Y (tensor): Output tensor where the results will be written
+        - V (tensor): Origin weight tensor.
         - W (tensor): Column based weight centered weight tensor, which will used in calculation
         - B (tensor): Bias tensor added to the scaled input
         - stride (int): Stride to be applied when accessing elements in the input and output tensors
         - N (int): Number of input feature
         - M (int): Number of output feature
+        - Flag (bool) : If 'True' update W with V
         - BLOCK_SIZE (constexpr): Size of the block for computation, provided as a compile-time constant
 
     Return:

@@ -2,9 +2,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import time
 
-import cppcuda_bn
-from utils import show_time, show_time_backward, bn1d_backward
+from cuda_time_test.cbwc import CCLinear_repara
+from utils import show_time, show_time_backward, bn1d_backward, GPU_warm_up, show_change_time
+from usage import RMSNormLayer
 
 # print(f"CUDA Version: {torch.version.cuda}")
 # print(f"CUDA Available: {torch.cuda.is_available()}")
@@ -15,64 +17,89 @@ from utils import show_time, show_time_backward, bn1d_backward
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(device)
 print("===========")
-shape = [256, 8]
-
-a = torch.randn(shape, device=device)
-grad_output = torch.randn(shape, device=device)
+linear_input = 8
+linear_output = 10
+in_shape = [256, linear_input]
+shape = [256, linear_output]
 gamma = torch.ones(shape[1], device=device)
 beta = torch.zeros(shape[1], device=device)
-BN = nn.BatchNorm1d(shape[1], device=device, affine=False)
 
-b = cppcuda_bn.bn_forward_mlp(a, gamma, beta)
-normalized_cppcuda = b[: -1, :]
-std_eps = b[-1, :]
+a = torch.randn(in_shape, device=device)
+grad_output = torch.randn(shape, device=device)
 
-c = cppcuda_bn.bn_forward_mlp_sram(a, gamma, beta)
-normalized_cppcuda_sram = c[: -1, :]
-std_eps_sram_N = c[-1, :]
+linear_layer = nn.Linear(linear_input, linear_output, bias=False, device=device)
+LN_layer = nn.LayerNorm(linear_output, device=device, affine=False)
+CBWC_layer = CCLinear_repara(linear_input, linear_output, bias=False, device=device)
+RMS_layer = RMSNormLayer(linear_output, device=device, affine=False)
 
 
-print("Running pytorch...")
-cuda_time, _ = show_time(BN, a, gamma, beta, type='torch')
+origin_model = nn.Sequential(linear_layer,LN_layer)
+cbwc_model = nn.Sequential(CBWC_layer, RMS_layer)
+
+times = list()
+
+print("original: eval -> train")
+GPU_warm_up(LN_layer, a)
+cuda_time = show_change_time(origin_model.eval(), origin_model.train())
+print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+print (cuda_time)
+origin_model_train_times = cuda_time
+
+print("cbwc: eval -> train")
+GPU_warm_up(LN_layer, a)
+cuda_time = show_change_time(cbwc_model.eval(), cbwc_model.train())
+print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+print (cuda_time)
+cbwc_model_train_times = cuda_time
+
+print("original: train -> eval")
+GPU_warm_up(LN_layer, a)
+cuda_time = show_change_time(origin_model.train(), origin_model.eval())
+print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+print (cuda_time)
+origin_model_eval_times = cuda_time
+
+print("cbwc: train -> eval")
+GPU_warm_up(LN_layer, a)
+cuda_time = show_change_time(cbwc_model.train(), cbwc_model.eval())
+print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+print (cuda_time)
+cbwc_model_eval_times = cuda_time
+
+
+origin_model.train()
+cbwc_model.train()
+
+print("Running origin...")
+cuda_time, _ = show_time(origin_model, a)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 pytorch_times = cuda_time
 
-print("Running mlp_naive...")
-cuda_time, _ = show_time(cppcuda_bn.bn_forward_mlp, a, gamma, beta)
+print("Running cbwc...")
+cuda_time, _ = show_time(cbwc_model, a)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
-mlp_naive_times = cuda_time
+cbwc_times = cuda_time
 
-print("Running mlp_sram...")
-cuda_time, _ = show_time(cppcuda_bn.bn_forward_mlp_sram, a, gamma, beta)
-print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
-print (cuda_time)
-mlp_sram_times = cuda_time
 
-print("Running mlp_backward_python...")
-cuda_time, _ = show_time_backward(bn1d_backward, grad_output, normalized_cppcuda_sram, gamma, std_eps)
+print("Running origin_backward...")
+cuda_time, _ = show_time_backward(origin_model, a, grad_output)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 mlp_back_python_times = cuda_time
 
-print("Running mlp_backward_naive...")
-cuda_time, _ = show_time_backward(cppcuda_bn.bn_backward_mlp, grad_output, normalized_cppcuda_sram, gamma, std_eps)
+print("Running cbwc_backward...")
+cuda_time, _ = show_time_backward(cbwc_model, a, grad_output)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 mlp_back_naive_times = cuda_time
 
-print("Running mlp_backward_sram...")
-cuda_time, _ = show_time_backward(cppcuda_bn.bn_backward_mlp_sram, grad_output, normalized_cppcuda_sram, gamma, std_eps_sram_N)
-print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
-print (cuda_time)
-mlp_back_sram_times = cuda_time
-
-
-data = [pytorch_times, mlp_naive_times, mlp_sram_times]
+'''
+data = [pytorch_times, mlp_naive_times]
 
 # 每个类型的名称
-labels = ['PyTorch', 'MLP Naive', 'MLP SRAM']
+labels = ['PyTorch', 'MLP Naive']
 
 # 每个类型的测试次数
 num_tests = len(pytorch_times)
@@ -109,10 +136,10 @@ plt.savefig('save_figs/mlp_forward.png')
 plt.close()
 
 
-data = [mlp_back_python_times, mlp_back_naive_times, mlp_back_sram_times]
+data = [mlp_back_python_times, mlp_back_naive_times]
 
 # 每个类型的名称
-labels = ['PyTorch', 'MLP Naive', 'MLP SRAM']
+labels = ['PyTorch', 'MLP Naive']
 
 # 每个类型的测试次数
 num_tests = len(pytorch_times)
@@ -147,3 +174,4 @@ plt.savefig('save_figs/mlp_backward.png')
 
 # 关闭图形以释放内存
 plt.close()
+'''

@@ -1,61 +1,80 @@
 import torch
 import time
 
+def GPU_warm_up(func, a, device="cuda:0"):
+    for _ in range(10):
+        torch.cuda.synchronize(device=device)
+        func(a)
+        torch.cuda.synchronize(device=device)
 
-def show_time(func, a, gamma, beta, type='cppcuda', ntest=10):
+
+def show_time(func, a, ntest=10, device="cuda:0"):
     """
     Parameters:
     - func: ``PyTorch`` Class or self implemented function
-    - a, gamma, beta: BN parameters
-    - type: \'cppcuda\' or \'torch\'
+    - a: input
     - ntest: default = 10, test epochs
     """
     times = list()
     res = list()
     # GPU warm up
-    for _ in range(10):
-        if type == 'torch':
-            func(a)
-        elif type == 'cppcuda':
-            func(a, gamma, beta)
-        else:
-            raise ValueError(f"Expected \'torch\' or \'cppcuda\', but got {type}")
+    GPU_warm_up(func, a, device=device)
+
     for _ in range(ntest):
         time.sleep(1)
         # sync the threads to get accurate cuda running time
-        torch.cuda.synchronize(device="cuda:0")
+        torch.cuda.synchronize(device=device)
         start_time = time.time()
-        if type == 'torch':
-            r = func(a)
-        elif type == 'cppcuda':
-            r = func(a, gamma, beta)
-        else:
-            raise ValueError(f"Expected \'torch\' or \'cppcuda\', but got {type}")
-        torch.cuda.synchronize(device="cuda:0")
+        r = func(a)
+        torch.cuda.synchronize(device=device)
         end_time = time.time()
-
         times.append((end_time-start_time)*1e6)
         res.append(r)
     return times, res
 
-def show_time_backward(func, grad_output, normalized, gamma, std_eps, ntest=10):
+def show_change_time(funca, funcb, ntest=10, device="cuda:0"):
+    """
+    Parameters:
+    - funca: initiate func
+    - funcb: func to check
+    - ntest: default = 10, test epochs
+    """
+    times = list()
+    # GPU warm up
+    for _ in range(ntest):
+        funca
+        time.sleep(1)
+        # sync the threads to get accurate cuda running time
+        torch.cuda.synchronize(device=device)
+        start_time = time.time()
+        funcb
+        torch.cuda.synchronize(device=device)
+        end_time = time.time()
+        times.append((end_time-start_time)*1e6)
+    return times
+
+    
+
+def show_time_backward(func, a, grad_output, ntest=10):
     """
     Parameters:
     - func: ``PyTorch`` Class or self implemented function
-    - grad_output, normalized, gamma, std_eps: BN parameters
+    - grad_output: BN parameters
     - ntest: default = 10, test epochs
     """
     times = list()
     res = list()
     # GPU warm up
     for _ in range(10):
-        func(grad_output, normalized, gamma, std_eps)
+        func(a)
     for _ in range(ntest):
         time.sleep(1)
+        torch.cuda.synchronize(device="cuda:0")
+        output = func(a)
         # sync the threads to get accurate cuda running time
         torch.cuda.synchronize(device="cuda:0")
         start_time = time.time()
-        r = func(grad_output, normalized, gamma, std_eps)
+        r = output.backward(grad_output)
         torch.cuda.synchronize(device="cuda:0")
         end_time = time.time()
 
