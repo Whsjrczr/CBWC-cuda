@@ -49,11 +49,13 @@ class RMSNormFunctionCustomKernel(torch.autograd.Function):
 
 
 class RMSNormLayer(nn.Module):
-    def __init__(self, weight_size, eps=1e-5, device="cuda:0"):
+    def __init__(self, weight_size, eps=1e-5, device=None, dtype=None):
+        factory_kwargs = {'device': device, 'dtype': dtype}
         super(RMSNormLayer, self).__init__()
-        self.weight = nn.Parameter(torch.Tensor(weight_size, device=device))
-        self.bias = nn.Parameter(torch.Tensor(weight_size, device=device))
+        self.weight = nn.Parameter(torch.empty(weight_size, **factory_kwargs))
+        self.bias = nn.Parameter(torch.empty(weight_size, **factory_kwargs))
         self.eps = eps
+        
         self.reset_parameters()
 
     def reset_parameters(self):
