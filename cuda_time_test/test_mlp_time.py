@@ -39,28 +39,28 @@ cbwc_model = nn.Sequential(CBWC_layer, RMS_layer)
 times = list()
 
 print("original: eval -> train")
-GPU_warm_up(LN_layer, a)
+GPU_warm_up(linear_layer, a)
 cuda_time = show_change_time(origin_model.eval(), origin_model.train())
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 origin_model_train_times = cuda_time
 
 print("cbwc: eval -> train")
-GPU_warm_up(LN_layer, a)
+GPU_warm_up(linear_layer, a)
 cuda_time = show_change_time(cbwc_model.eval(), cbwc_model.train())
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 cbwc_model_train_times = cuda_time
 
 print("original: train -> eval")
-GPU_warm_up(LN_layer, a)
+GPU_warm_up(linear_layer, a)
 cuda_time = show_change_time(origin_model.train(), origin_model.eval())
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 origin_model_eval_times = cuda_time
 
 print("cbwc: train -> eval")
-GPU_warm_up(LN_layer, a)
+GPU_warm_up(linear_layer, a)
 cuda_time = show_change_time(cbwc_model.train(), cbwc_model.eval())
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
