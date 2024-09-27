@@ -70,13 +70,28 @@ cbwc_model_eval_times = cuda_time
 origin_model.train()
 cbwc_model.train()
 
-print("Running origin...")
+print("Running origin_train...")
 cuda_time, _ = show_time(origin_model, a)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 pytorch_times = cuda_time
 
-print("Running cbwc...")
+print("Running cbwc_train...")
+cuda_time, _ = show_time(cbwc_model, a)
+print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+print (cuda_time)
+cbwc_times = cuda_time
+
+origin_model.eval()
+cbwc_model.eval()
+
+print("Running origin_eval...")
+cuda_time, _ = show_time(origin_model, a)
+print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+print (cuda_time)
+pytorch_times = cuda_time
+
+print("Running cbwc_eval...")
 cuda_time, _ = show_time(cbwc_model, a)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
