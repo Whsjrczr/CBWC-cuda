@@ -29,9 +29,14 @@ a = torch.randn(in_shape, device=device)
 b = torch.randn(shape, device=device)
 
 linear_layer = nn.Linear(linear_input, linear_output, bias=False, device=device)
-LN_layer = nn.LayerNorm(linear_output, device=device, elementwise_affine=False, bias=False)
+LN_layer = nn.LayerNorm(linear_output, device=device, elementwise_affine=True, bias=True)
 CBWC_layer = CCLinear_repara(linear_input, linear_output, bias=False, device=device)
 RMS_layer = RMSNormLayer(linear_output, device=device)
+
+print(f"batchsize:{batch_size}")
+print(f"input:{linear_input}")
+print(f"output:{linear_output}")
+print(linear_layer, LN_layer, CBWC_layer, RMS_layer)
 
 linear_layer.train()
 print("Running linear_layer_train...")

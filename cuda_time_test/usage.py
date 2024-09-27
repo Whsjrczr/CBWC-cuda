@@ -81,4 +81,4 @@ def test_rms_norm_custom_kernel():
     print("Grads B: ", biases.grad)
 
 
-test_rms_norm_custom_kernel()
+# test_rms_norm_custom_kernel()
