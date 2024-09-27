@@ -28,9 +28,9 @@ a = torch.randn(in_shape, device=device)
 grad_output = torch.randn(shape, device=device)
 
 linear_layer = nn.Linear(linear_input, linear_output, bias=False, device=device)
-LN_layer = nn.LayerNorm(linear_output, device=device, affine=False)
+LN_layer = nn.LayerNorm(linear_output, device=device, elementwise_affine=False, bias=False)
 CBWC_layer = CCLinear_repara(linear_input, linear_output, bias=False, device=device)
-RMS_layer = RMSNormLayer(linear_output, device=device, affine=False)
+RMS_layer = RMSNormLayer(linear_output, device=device)
 
 
 origin_model = nn.Sequential(linear_layer,LN_layer)
