@@ -17,15 +17,16 @@ from usage import RMSNormLayer
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(device)
 print("===========")
-linear_input = 8
-linear_output = 10
-in_shape = [256, linear_input]
-shape = [256, linear_output]
+linear_input = 64
+linear_output = 128
+batch_size = 16
+in_shape = [batch_size, linear_input]
+shape = [batch_size, linear_output]
 gamma = torch.ones(shape[1], device=device)
 beta = torch.zeros(shape[1], device=device)
 
 a = torch.randn(in_shape, device=device)
-grad_output = torch.randn(shape, device=device)
+b = torch.randn(shape, device=device)
 
 linear_layer = nn.Linear(linear_input, linear_output, bias=False, device=device)
 LN_layer = nn.LayerNorm(linear_output, device=device, elementwise_affine=False, bias=False)
@@ -58,24 +59,24 @@ print (cuda_time)
 
 LN_layer.train()
 print("Running LN_train...")
-cuda_time, _ = show_time(LN_layer, a)
+cuda_time, _ = show_time(LN_layer, b)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 
 LN_layer.eval()
 print("Running LN_eval...")
-cuda_time, _ = show_time(LN_layer, a)
+cuda_time, _ = show_time(LN_layer, b)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 
 RMS_layer.train()
 print("Running RMS_train...")
-cuda_time, _ = show_time(RMS_layer, a)
+cuda_time, _ = show_time(RMS_layer, b)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)
 
 RMS_layer.eval()
 print("Running RMS_eval...")
-cuda_time, _ = show_time(RMS_layer, a)
+cuda_time, _ = show_time(RMS_layer, b)
 print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
 print (cuda_time)

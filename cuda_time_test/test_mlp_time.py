@@ -17,10 +17,11 @@ from usage import RMSNormLayer
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(device)
 print("===========")
-linear_input = 8
-linear_output = 10
-in_shape = [256, linear_input]
-shape = [256, linear_output]
+linear_input = 64
+linear_output = 128
+batch_size = 16
+in_shape = [batch_size, linear_input]
+shape = [batch_size, linear_output]
 gamma = torch.ones(shape[1], device=device)
 beta = torch.zeros(shape[1], device=device)
 
