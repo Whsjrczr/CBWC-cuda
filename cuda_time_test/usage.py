@@ -66,19 +66,19 @@ class RMSNormLayer(nn.Module):
         return RMSNormFunctionCustomKernel.apply(x, self.weight, self.bias, self.eps)
     
 
-def test_rms_norm_custom_kernel():
-    eps = 1e-5
-    input = torch.tensor([[0.1, -0.2] * 10] * 10, device="cuda", requires_grad=True)
-    weights = torch.tensor([0.1] * 20, device="cuda", requires_grad=True)
-    biases = torch.tensor([0.01] * 20, device="cuda", requires_grad=True)
+# def test_rms_norm_custom_kernel():
+#     eps = 1e-5
+#     input = torch.tensor([[0.1, -0.2] * 10] * 10, device="cuda", requires_grad=True)
+#     weights = torch.tensor([0.1] * 20, device="cuda", requires_grad=True)
+#     biases = torch.tensor([0.01] * 20, device="cuda", requires_grad=True)
 
-    output = RMSNormFunctionCustomKernel.apply(input, weights, biases, eps)
-    loss = output.mean()
-    loss.backward()
+#     output = RMSNormFunctionCustomKernel.apply(input, weights, biases, eps)
+#     loss = output.mean()
+#     loss.backward()
 
-    print("Grads X: ", input.grad)
-    print("Grads W: ", weights.grad)
-    print("Grads B: ", biases.grad)
+#     print("Grads X: ", input.grad)
+#     print("Grads W: ", weights.grad)
+#     print("Grads B: ", biases.grad)
 
 
 # test_rms_norm_custom_kernel()
