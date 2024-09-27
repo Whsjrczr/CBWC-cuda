@@ -32,11 +32,9 @@ LN_layer = nn.LayerNorm(linear_output, device=device, elementwise_affine=False, 
 CBWC_layer = CCLinear_repara(linear_input, linear_output, bias=False, device=device)
 RMS_layer = RMSNormLayer(linear_output, device=device)
 
-
 origin_model = nn.Sequential(linear_layer,LN_layer)
 cbwc_model = nn.Sequential(CBWC_layer, RMS_layer)
 
-times = list()
 
 print("original: eval -> train")
 GPU_warm_up(linear_layer, a)
