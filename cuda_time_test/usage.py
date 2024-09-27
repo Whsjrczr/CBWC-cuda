@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
-from tri_cbwc.kernel.cbwc_kernel import (
-    _cbwc_fwd_fused,
-    _cbwc_bwd_dx_fused,
+import torch
+from tri_rmsnorm.kernel.rms_normalization_kernel import (
+    _rms_norm_fwd_fused,
+    _rms_norm_bwd_dx_fused,
 )
-
 
 
 class RMSNormFunctionCustomKernel(torch.autograd.Function):

@@ -4,7 +4,7 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import time
 
-from cuda_time_test.cbwc import CCLinear_repara
+from cbwc import CCLinear_repara
 from utils import show_time, show_time_backward, bn1d_backward, GPU_warm_up, show_change_time
 from usage import RMSNormLayer
 
@@ -83,17 +83,17 @@ print (cuda_time)
 cbwc_times = cuda_time
 
 
-print("Running origin_backward...")
-cuda_time, _ = show_time_backward(origin_model, a, grad_output)
-print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
-print (cuda_time)
-mlp_back_python_times = cuda_time
+# print("Running origin_backward...")
+# cuda_time, _ = show_time_backward(origin_model, a, grad_output)
+# print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+# print (cuda_time)
+# mlp_back_python_times = cuda_time
 
-print("Running cbwc_backward...")
-cuda_time, _ = show_time_backward(cbwc_model, a, grad_output)
-print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
-print (cuda_time)
-mlp_back_naive_times = cuda_time
+# print("Running cbwc_backward...")
+# cuda_time, _ = show_time_backward(cbwc_model, a, grad_output)
+# print("Cuda time:  {:.3f}us".format(np.mean(cuda_time)))
+# print (cuda_time)
+# mlp_back_naive_times = cuda_time
 
 '''
 data = [pytorch_times, mlp_naive_times]
