@@ -13,7 +13,7 @@ python3 cifar10-mlp.py \
 --lr-method=step \
 --lr-step=1 \
 --lr-gamma=0.9 \
---dataset-root=~/ColumnCW-master/MLP/dataset \
+--dataset-root=~/CBWC-cuda/model_exp/dataset \
 --norm=LN \
 # --norm-cfg=T=1,num_groups=2,dim=2 \
 --seed=1 \

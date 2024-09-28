@@ -92,28 +92,27 @@ class myLayerNorm(nn.Module):
 
 
 class SOLayerNorm(nn.Module):
-    __constants__ = ['normalized_shape', 'eps', 'elementwise_affine']
-    normalized_shape: Tuple[int, ...]
+    __constants__ = ['weigth_size', 'eps', 'elementwise_affine']
+    weight_size: Tuple[int, ...]
     eps: float
     elementwise_affine: bool
 
-    def __init__(self, normalized_shape, eps=1e-5, elementwise_affine=True, device=None, dtype=None):
+    def __init__(self, weight_size, eps=1e-5, elementwise_affine=True, device=None, dtype=None):
         super(SOLayerNorm, self).__init__()
         factory_kwargs = {'device': device, 'dtype': dtype}
-        if isinstance(normalized_shape, numbers.Integral):
+        if isinstance(weight_size, numbers.Integral):
             # mypy error: incompatible types in assignment
-            normalized_shape = (normalized_shape,)  # type: ignore[assignment]
-        self.normalized_shape = tuple(normalized_shape)  # type: ignore[arg-type]
+            weight_size = (weight_size,)  # type: ignore[assignment]
+        self.weight_size = tuple(weight_size)  # type: ignore[arg-type]
         self.eps = eps
         self.elementwise_affine = elementwise_affine
 
         if self.elementwise_affine:
-            self.weight = nn.Parameter(torch.empty(self.normalized_shape, **factory_kwargs))
-            self.bias = nn.Parameter(torch.empty(self.normalized_shape, **factory_kwargs))
+            self.weight = nn.Parameter(torch.empty(self.weight_size, **factory_kwargs))
+            self.bias = nn.Parameter(torch.empty(self.weight_size, **factory_kwargs))
         else:
-            self.register_parameter('weight', None)
-            self.register_parameter('bias', None)
-            
+            self.weight = torch.ones(self.weight_size, **factory_kwargs)
+            self.bias = torch.zeros(self.weight_size, **factory_kwargs)            
 
         self.reset_parameters()
 

@@ -34,7 +34,7 @@ class CCLinear(nn.Module):
     out_features: int
     weight: Tensor
     def __init__(self, in_features: int, out_features: int, bias: bool = True,
-                 device=None, dtype=None) -> None:
+                 device="cuda:0", dtype=None) -> None:
         factory_kwargs = {'device': device, 'dtype': dtype}
         super().__init__()
         self.in_features = in_features
