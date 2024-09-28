@@ -137,32 +137,42 @@ class MNIST:
         bp_times = list()
         progress_bar = ext.ProgressBar(len(self.train_loader))
         for i, (inputs, targets) in enumerate(self.train_loader, 1):
+            print(i)
             inputs = inputs.to(self.device)
             targets = inputs if self.cfg.arch == 'AE' else targets.to(self.device)
             #print(inputs.size())
             # compute output
+            print("train_start")
             train_start_time = time.time
             outputs = self.model(inputs)
+            print("output_done")
             train_end_time = time.time
+            print("train_end")
             fp_times.append((train_end_time()-train_start_time())*1e6)
             losses = self.criterion(outputs, targets)
 
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
+            print("bp_start")
             bp_start_time = time.time
             losses.backward()
+            print("bp_done")
             bp_end_time = time.time
+            print("bp_end")
             bp_times.append((bp_end_time()-bp_start_time())*1e6)
             self.optimizer.step()
 
+            print("loss_start")
             # measure accuracy and record loss
             train_loss += losses.item() * targets.size(0)
+            print("losses_added")
             if self.cfg.arch == 'AE':
                 correct = -train_loss
             else:
                 pred = outputs.max(1, keepdim=True)[1]
                 correct += pred.eq(targets.view_as(pred)).sum().item()
             total += targets.size(0)
+            print("loss_end")
             if i % 10 == 0 or i == len(self.train_loader):
                 progress_bar.step('Loss: {:.5g} | Accuracy: {:.2f}%'.format(train_loss / total, 100. * correct / total),
                     10)
