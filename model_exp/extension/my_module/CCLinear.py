@@ -8,10 +8,23 @@ from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 import torch.nn.init as init
 import extension as ext
-from culculate_tools import my_calculate_fan_in_and_fan_out
 from normalization_scalingonly import *
 
 
+def my_calculate_fan_in_and_fan_out(tensor):
+    dimensions = tensor.dim()
+    if dimensions < 2:
+        raise ValueError("Fan in and fan out can not be computed for tensor with fewer than 2 dimensions")
+    num_input_fmaps = tensor.size(1)
+    receptive_field_size = 1
+    if tensor.dim() > 2:
+        # math.prod is not always available, accumulate the product manually
+        # we could use functools.reduce but that is not supported by TorchScript
+        for s in tensor.shape[2:]:
+            receptive_field_size *= s
+    fan_in = num_input_fmaps * receptive_field_size
+
+    return fan_in
 
 # 这里CCLinear可以直接替代nn.Linear函数
 # TODO: 记得写GN对饮的GCCLinear 主体部分已完成，仍有bug
