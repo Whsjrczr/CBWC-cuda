@@ -36,6 +36,15 @@ RMS_layer = RMSNormLayer(linear_output, device=device)
 origin_model = nn.Sequential(linear_layer,LN_layer)
 cbwc_model = nn.Sequential(CBWC_layer, RMS_layer)
 
+print(f"batchsize:{batch_size}")
+print(f"input:{linear_input}")
+print(f"output:{linear_output}")
+print(linear_layer)
+print(LN_layer)
+print(CBWC_layer)
+print(RMS_layer)
+print("===========")
+
 
 print("original: eval -> train")
 GPU_warm_up(linear_layer, a)
