@@ -93,7 +93,7 @@ class myLayerNorm(nn.Module):
 
 class SOLayerNorm(nn.Module):
     __constants__ = ['normalized_shape', 'eps', 'elementwise_affine']
-    normalized_shape: Tuple[int, ...]
+    normalized_shape: tuple[int, ...]
     eps: float
     elementwise_affine: bool
 
