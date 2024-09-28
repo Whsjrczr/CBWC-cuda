@@ -3,6 +3,10 @@ import torch.nn as nn
 import numbers
 from typing import Tuple
 from torch.nn import functional as F
+from tri_rmsnorm.kernel.rms_normalization_kernel import (
+    _rms_norm_fwd_fused,
+    _rms_norm_bwd_dx_fused,
+)
 
 class RMSNormFunctionCustomKernel(torch.autograd.Function):
     @staticmethod

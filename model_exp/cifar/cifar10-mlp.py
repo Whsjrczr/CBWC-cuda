@@ -144,7 +144,7 @@ class MNIST:
             train_start_time = time.time
             outputs = self.model(inputs)
             train_end_time = time.time
-            fp_times.append((train_end_time-train_start_time)*1e6)
+            fp_times.append((train_end_time()-train_start_time())*1e6)
             losses = self.criterion(outputs, targets)
 
             # compute gradient and do SGD step
@@ -152,7 +152,7 @@ class MNIST:
             bp_start_time = time.time
             losses.backward()
             bp_end_time = time.time
-            bp_times.append((bp_end_time-bp_start_time)*1e6)
+            bp_times.append((bp_end_time()-bp_start_time())*1e6)
             self.optimizer.step()
 
             # measure accuracy and record loss
@@ -194,7 +194,7 @@ class MNIST:
                 eval_start_time = time.time
                 outputs = self.model(inputs)
                 eval_end_time = time.time
-                eval_times.append((eval_end_time-eval_start_time)*1e6)
+                eval_times.append((eval_end_time()-eval_start_time())*1e6)
 
                 test_loss += self.criterion(outputs, targets).item() * targets.size(0)
                 if self.cfg.arch == 'AE':

@@ -8,7 +8,7 @@ from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 import torch.nn.init as init
 import extension as ext
-from normalization_scalingonly import *
+from .normalization_scalingonly import *
 
 
 def my_calculate_fan_in_and_fan_out(tensor):
@@ -45,7 +45,7 @@ class CCLinear(nn.Module):
             self.bias = torch.empty(out_features, **factory_kwargs)
             self.v_bias = Parameter(torch.empty(out_features, **factory_kwargs))
         else:
-            self.register_parameter('bias', None)
+            self.register_parameter('bias', **factory_kwargs)
         self.reset_parameters()
 
     def reset_parameters(self) -> None:
