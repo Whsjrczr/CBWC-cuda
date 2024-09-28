@@ -10,6 +10,7 @@ import torch.utils.data
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
 import sys
+import numpy as np
 
 sys.path.append('../')
 
@@ -74,7 +75,8 @@ class MNIST:
 
         self.vis = ext.visualization.setting(self.cfg, self.model_name,
                                              {'train loss': 'loss', 'test loss': 'loss', 'train accuracy': 'accuracy',
-                                              'test accuracy': 'accuracy'})
+                                              'test accuracy': 'accuracy', 'sum_fp_time' : 'us', 'sum_bp_time' : 'us',
+                                              'sum_eval_time': 'us'})
         return
 
     def add_arguments(self):
@@ -131,19 +133,26 @@ class MNIST:
         train_loss = 0
         correct = 0
         total = 0
-        fp_time = ()
+        fp_times = list()
+        bp_times = list()
         progress_bar = ext.ProgressBar(len(self.train_loader))
         for i, (inputs, targets) in enumerate(self.train_loader, 1):
             inputs = inputs.to(self.device)
             targets = inputs if self.cfg.arch == 'AE' else targets.to(self.device)
             #print(inputs.size())
             # compute output
+            train_start_time = time.time
             outputs = self.model(inputs)
+            train_end_time = time.time
+            fp_times.append((train_end_time-train_start_time)*1e6)
             losses = self.criterion(outputs, targets)
 
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
+            bp_start_time = time.time
             losses.backward()
+            bp_end_time = time.time
+            bp_times.append((bp_end_time-bp_start_time)*1e6)
             self.optimizer.step()
 
             # measure accuracy and record loss
@@ -159,8 +168,12 @@ class MNIST:
                     10)
         train_loss /= total
         accuracy = 100. * correct / total
+        avg_fp_time = np.sum(fp_times)
+        avg_bp_time = np.sum(bp_times)
         self.vis.add_value('train loss', train_loss)
         self.vis.add_value('train accuracy', accuracy)
+        self.vis.add_value('sum_fp_time', avg_fp_time)
+        self.vis.add_value('sum_bp_time', avg_bp_time)
         self.logger(
             'Train on epoch {}: average loss={:.5g}, accuracy={:.2f}% ({}/{}), time: {}'.format(epoch, train_loss,
                 accuracy, correct, total, progress_bar.time_used()))
@@ -171,12 +184,18 @@ class MNIST:
         correct = 0
         total = 0
         progress_bar = ext.ProgressBar(len(self.val_loader))
+        eval_times = list()
         self.model.eval()
         with torch.no_grad():
             for inputs, targets in self.val_loader:
                 inputs = inputs.to(self.device)
                 targets = inputs if self.cfg.arch == 'AE' else targets.to(self.device)
+
+                eval_start_time = time.time
                 outputs = self.model(inputs)
+                eval_end_time = time.time
+                eval_times.append((eval_end_time-eval_start_time)*1e6)
+
                 test_loss += self.criterion(outputs, targets).item() * targets.size(0)
                 if self.cfg.arch == 'AE':
                     correct = -test_loss
@@ -187,8 +206,10 @@ class MNIST:
                 progress_bar.step('Loss: {:.5g} | Accuracy: {:.2f}%'.format(test_loss / total, 100. * correct / total))
         test_loss /= total
         accuracy = correct * 100. / total
+        sum_eval_time = np.sum(eval_times)
         self.vis.add_value('test loss', test_loss)
         self.vis.add_value('test accuracy', accuracy)
+        self.vis.add_value('sum_eval_time', sum_eval_time)
         self.logger('Test on epoch {}: average loss={:.5g}, accuracy={:.2f}% ({}/{}), time: {}'.format(epoch, test_loss,
             accuracy, correct, total, progress_bar.time_used()))
         if not self.cfg.test and accuracy > self.best_acc:
