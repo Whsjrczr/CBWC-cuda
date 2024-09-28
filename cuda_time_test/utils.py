@@ -3,9 +3,9 @@ import time
 
 def GPU_warm_up(func, a, device="cuda:0"):
     for _ in range(10):
-        torch.cuda.synchronize(device=device)
+        # torch.cuda.synchronize(device=device)
         func(a)
-        torch.cuda.synchronize(device=device)
+        # torch.cuda.synchronize(device=device)
 
 
 def show_time(func, a, ntest=10, device="cuda:0"):
@@ -43,7 +43,7 @@ def show_change_time(funca, funcb, ntest=10, device="cuda:0"):
     # GPU warm up
     for _ in range(ntest):
         funca
-        # time.sleep(1)
+        time.sleep(1)
         # sync the threads to get accurate cuda running time
         torch.cuda.synchronize(device=device)
         start_time = time.time()
@@ -68,7 +68,7 @@ def show_time_backward(func, a, grad_output, ntest=10):
     for _ in range(10):
         func(a)
     for _ in range(ntest):
-        # time.sleep(1)
+        time.sleep(1)
         torch.cuda.synchronize(device="cuda:0")
         output = func(a)
         # sync the threads to get accurate cuda running time
