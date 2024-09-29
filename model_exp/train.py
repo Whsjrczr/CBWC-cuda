@@ -61,6 +61,7 @@ optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
 # 训练网络
 for epoch in range(num_epochs):
+    model.train()
     print(f'Begin Epoch{epoch}...')
     for images, labels in train_loader:
         images, labels = images.to(device), labels.to(device)
@@ -78,6 +79,18 @@ for epoch in range(num_epochs):
         # print("opt done...")
 
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
+    model.eval()
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for images, labels in test_loader:
+            images, labels = images.to(device), labels.to(device) 
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+        print(f'Accuracy of the network on the 10000 test images: {100 * correct / total}%')
 
 # 测试网络
 model.eval()
