@@ -3,3 +3,6 @@
 
 # vscode setting
 .vscode/
+
+# gpt
+./model_exp/gpt

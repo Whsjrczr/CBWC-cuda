@@ -160,9 +160,14 @@ class MNIST:
             bp_end_time = time.time
             print("bp_end")
             bp_times.append((bp_end_time()-bp_start_time())*1e6)
+            print("time_append")
             self.optimizer.step()
+            print("optimizer.step")
 
             print("loss_start")
+            print(losses.item())
+            print(targets.size(0))
+            print(train_loss)
             # measure accuracy and record loss
             train_loss += losses.item() * targets.size(0)
             print("losses_added")
