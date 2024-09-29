@@ -18,7 +18,7 @@ transform = transforms.Compose([
 ])
 
 train_dataset = datasets.MNIST(root='./dataset', train=True, download=True, transform=transform)
-test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+test_dataset = datasets.MNIST(root='./dataset', train=False, download=True, transform=transform)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
