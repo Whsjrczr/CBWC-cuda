@@ -150,7 +150,7 @@ class MNIST:
             print("train_end")
             fp_times.append((train_end_time()-train_start_time())*1e6)
             losses = self.criterion(outputs, targets)
-
+            print("opt int done")
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
             print("bp_start")
