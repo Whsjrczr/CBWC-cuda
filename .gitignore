@@ -5,4 +5,4 @@
 .vscode/
 
 # gpt
-model_exp/gpt/
+model_exp/gpt/model
