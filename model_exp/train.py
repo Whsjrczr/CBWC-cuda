@@ -25,9 +25,9 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=Fa
 
 # 定义网络结构
 class SimpleNN(nn.Module):
-    def __init__(self, depth=4, width=100, **kwargs):
+    def __init__(self, depth=4, width=128, **kwargs):
         super(SimpleNN, self).__init__()
-        layers = [ext.View(32 * 32), nn.Linear(32 * 32, width), ext.Norm(width), nn.ReLU(True)]
+        layers = [nn.Linear(28 * 28, width), ext.SOLayerNorm(width), nn.ReLU(True)]
         for _ in range(depth - 1):
             layers.append(nn.Linear(width, width))
             layers.append(ext.SOLayerNorm(width))
